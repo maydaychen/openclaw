@@ -1,0 +1,32 @@
+name: Build OpenClaw Android App
+
+on:
+  workflow_dispatch: # 允许手动点击按钮触发
+
+jobs:
+  build:
+    runs-on: ubuntu-latest # 使用最新的 Ubuntu 云端电脑
+
+    steps:
+    - name: 把代码拉取到云端电脑
+      uses: actions/checkout@v4
+
+    - name: 配置 Java 17 环境
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: 给打包工具执行权限
+      working-directory: ./apps/android
+      run: chmod +x ./gradlew
+
+    - name: 开始编译打包
+      working-directory: ./apps/android
+      run: ./gradlew :app:assemblePlayDebug
+
+    - name: 提取生成的 APK 文件
+      uses: actions/upload-artifact@v4
+      with:
+        name: openclaw-android-debug
+        path: apps/android/app/build/outputs/apk/play/debug/*.apk
